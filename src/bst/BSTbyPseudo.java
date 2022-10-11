@@ -3,10 +3,8 @@ package bst;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Optional;
 import java.util.Stack;
 import java.util.StringTokenizer;
-
 
 
 final class INode<Integer> {
@@ -43,13 +41,113 @@ public class BSTbyPseudo {
             if (order.equals("i")) {
                 root = insertBST(root, key);
             } else {
-                // deleteBST()
+                root = deleteBST(root, key);
             }
         }
 
     }
 
     protected static INode<Integer> root;
+
+    public static INode<Integer> deleteBST(INode<Integer> T, int deleteKey){
+        INode<Integer> p =  T; // root, rt == p in psuedo
+        INode<Integer> q = null;
+        Stack<INode<Integer>> stackQ = new Stack<>();
+
+
+        // find position of deleteKey while storing parent node on stack
+        while(p != null && deleteKey != p.key){
+
+            q = p;
+            stackQ.push(q);
+
+            if (deleteKey<p.key){
+                p = p.left();
+            }else{
+                p = p.right();
+            }
+        }
+
+        if (p == null)  {
+            System.out.printf("d %d : The key does not exist\n", deleteKey);
+            return T; // deleteKey was not found
+        }
+
+        if (p.l != null && p.r != null){
+            stackQ.push(p);
+            INode<Integer> tempNode = p;
+
+            if(p.l.height <= p.r.height){
+                p = p.right();
+                while(p.l != null){
+                    stackQ.push(p);
+                    p = p.left();
+                }
+            }else{
+                p = p.left();
+                while(p.r != null){
+                    stackQ.push(p);
+                    p = p.right();
+                }
+            }
+
+            tempNode.key = p.key; // tempNode 가 하는게 뭐야
+            q = stackQ.peek();
+        }
+
+        // now degree of p is 0 or 1
+        // delete p from T
+        if( p.l == null && p.r == null ){ // case of degree 0
+            if(q == null){
+                T = null;
+            }else if(q.l == p){
+                q.l = null;
+            }else{
+                q.r = null;
+            }
+        }else{ // case of degree 1
+            if (p.l != null ){
+                if(q==null){
+                    T = T.l; // case of root
+                }else if(q.l == p){
+                    q.l = p.l;
+                }else{
+                    q.r = p.l;
+                }
+            }else{ // p.r != null
+                if(q == null){
+                    T = T.r; // case of root
+                }else if(q.l == p){
+                    q.l = p.r;
+                }else{
+                    q.r = p.r;
+                }
+            }
+        }
+
+        // delete p; <- p will delete automatically by java garbage collector
+
+        // update height while popping parent node from stack
+        int size = stackQ.size();
+
+        while(size-- != 0){
+            q = stackQ.pop();
+            if(q.l == null && q.r == null){
+                q.height = 0 ;
+            }else if (q.l == null) {
+                q.height = q.r.height + 1 ;
+            }else {
+                q.height = q.l.height + 1;
+            }
+        }
+        // TODO : (1) q.l.height 가 nullpointexception 일때 예외처리 (2) optional
+
+        inorder(T);
+        System.out.println();
+
+        return T;
+    }
+
 
     public static INode<Integer> insertBST(INode<Integer> T, int newKey) {
         INode<Integer> p =  T; // root, rt == p in psuedo
