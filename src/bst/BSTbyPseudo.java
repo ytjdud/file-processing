@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+
 final class INode<Integer> {
     int height;
     int key;
@@ -146,6 +147,7 @@ public class BSTbyPseudo {
 
         return T;
     }
+
 
     public static INode<Integer> insertBST(INode<Integer> T, int newKey) {
         INode<Integer> p =  T; // root, rt == p in psuedo
